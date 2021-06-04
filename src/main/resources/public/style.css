@@ -4,23 +4,19 @@ body {
   background-position:center top;
 }
 
-h1 {
-  color: navy;
-}
-
 h2 {
   margin-top: 30px;
-  color: #423ca3;
+  color: #ee6123;
 }
 
 #powered {
-  margin-top: 50px;
-  color: #423ca3;
+  margin-top: 40px;
+  color: white;
 }
 
 #powered2 {
-  margin-top: 93px;
-  color: #423ca3;
+  margin-top: 33px;
+    color: white;
 }
 
 #git_link {
@@ -34,7 +30,7 @@ position: absolute;
   height: 350px;
   width: 500px;
   padding: 30px;
-  background-color: #0ca498;
+  background-color: #172f41;
   margin: auto;
     position: absolute;
     top: 50%;
@@ -49,20 +45,20 @@ position: absolute;
 }
 
 .headBack {
-    margin-top: -20px;
+    margin-top: 20px;
     height: 100px;
 }
 
 #link {
-    margin-top: 10px;
+    margin-top: 35px;
     border: 0;
-    height: 20px;
+    height: 22px;
     width: 220px;
 }
 
 #subButt {
-   margin-top: 13px;
-   background-color: #423ca3;
+   margin-top: 20px;
+   background-color: #ee6123;
    color: white;
    border: 0;
    border-radius: 50px;

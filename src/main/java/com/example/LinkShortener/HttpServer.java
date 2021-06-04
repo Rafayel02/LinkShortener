@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.util.stream.Stream;
 
 public class HttpServer {
-
     public static final String symbols= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
     public static Javalin app;
     public static DataBase db;
 
