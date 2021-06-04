@@ -19,19 +19,24 @@ public class HttpServer {
                 "qwerty"
         );
 
+        //Connection creation
         app = Javalin.create(config -> {
             config.addStaticFiles("src/main/resources/public", Location.EXTERNAL);
         }).start(8000);
 
+        app.post("/*", ctx-> {
+            System.out.println("asas");
+        });
+
         app.post("/your-short-link", ctx -> {
-            String link = ctx.formParam("link");
-            String shortLink = null;
+            String link = ctx.formParam("link"); //Got link from label
+            String shortLink;
 
             shortLink = tryToGetFromDB(link);
-            System.out.println("aasasasasasdasfsdavn dsamvna");
             if(shortLink == null) {
                 shortLink = shortenLink();
             }
+
             ctx.result(("<html>\n" +
                     "    <head>\n" +
                     "        <title>Link shortener</title>\n" +
@@ -50,14 +55,8 @@ public class HttpServer {
         return null;
     }
 
-
     private static String shortenLink() {
         int length = (int) (Math.random()*10)+5;
-        String shortLink = generate(length);
-        return shortLink;
-    }
-
-    private static String generate(int length) {
         StringBuilder shortLink = new StringBuilder();
         for(int i = 0; i < length; i++) {
             int index = (int) (Math.random()*62);
@@ -68,7 +67,6 @@ public class HttpServer {
     }
 
     private static void checkIfNotExists(StringBuilder shortLink) {
-
 
     }
 
