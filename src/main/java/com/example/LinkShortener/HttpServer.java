@@ -3,16 +3,23 @@ package com.example.LinkShortener;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.stream.Stream;
 
 public class HttpServer {
 
     public static final String symbols= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
     public static Javalin app;
+    public static DataBase db;
 
     public static void main(String[] args) throws SQLException {
-        DataBase.start("localhost",
+        //DB connection-start
+        db = new DataBase();
+        db.start("localhost",
                 "5432",
                 "linksdatabase",
                 "rafo",
@@ -24,39 +31,37 @@ public class HttpServer {
             config.addStaticFiles("src/main/resources/public", Location.EXTERNAL);
         }).start(8000);
 
-        app.post("/*", ctx-> {
-            System.out.println("asas");
-        });
-
+        // Short link page
         app.post("/your-short-link", ctx -> {
             String link = ctx.formParam("link"); //Got link from label
             String shortLink;
 
-            shortLink = tryToGetFromDB(link);
+            shortLink = db.tryToGetFromDB(link);
+
             if(shortLink == null) {
-                shortLink = shortenLink();
+                shortLink = generateShortLink();
+                db.registerInDb(link, shortLink);
             }
-
-            ctx.result(("<html>\n" +
-                    "    <head>\n" +
-                    "        <title>Link shortener</title>\n" +
-                    "    </head>\n" +
-                    "    <body>\n" +
-                    "        <h1>Thank you, you can copy your link:</h1>\n" +
-                    "        <input type=\"text\" value=localhost:8000/SHORT_LINK id=\"myInput\">\n" +
-                    "        <h3>Powered by Rafayel Shahnazaryan</h3>\n" +
-                    "    </body>\n" +
-                    "</html>").replaceAll("SHORT_LINK", shortLink)).contentType("html");
+            ctx.result(getFileContent("src/main/resources/public/shorten_link_page.html")
+                    .replaceAll("SHORT_LINK", shortLink))
+                    .contentType("html");
         });
+
     }
 
-    private static String tryToGetFromDB(String link) throws SQLException {
-        String shortLink = DataBase.getShortenLinkFor(link);
-        return null;
+    private static String getFileContent(String s) {
+        Path path = Paths.get("src/main/resources/public/shorten_link_page.html");
+        StringBuilder sb = new StringBuilder();
+        try (Stream<String> stream = Files.lines(path, StandardCharsets.UTF_8)) {
+            stream.forEach(sb::append);
+        } catch (Exception ex) {
+            // Handle exception
+        }
+        return sb.toString();
     }
 
-    private static String shortenLink() {
-        int length = (int) (Math.random()*10)+5;
+    private static String generateShortLink() {
+        int length = (int) (Math.random()*5)+5;
         StringBuilder shortLink = new StringBuilder();
         for(int i = 0; i < length; i++) {
             int index = (int) (Math.random()*62);

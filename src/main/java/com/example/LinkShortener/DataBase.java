@@ -1,12 +1,20 @@
 package com.example.LinkShortener;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
+import com.example.LinkShortener.Link;
+
+import java.io.Serializable;
 import java.sql.*;
 import java.util.Arrays;
 
 public class DataBase {
 
-    private static Connection connection;
+    private Connection connection;
+    private SessionFactory sessionFactory = HibernateHelper.getSessionFactory();
+    private Session session = sessionFactory.openSession();
 
-    public static void start(String host, String port, String database, String user, String password) throws SQLException {
+    public void start(String host, String port, String database, String user, String password) throws SQLException {
         StringBuilder sb = new StringBuilder();
         sb.append("jdbc:postgresql://")
                 .append(host)
@@ -18,33 +26,48 @@ public class DataBase {
         connection = DriverManager.getConnection(url, user, password);
     }
 
-    public static String getShortenLinkFor(String link) throws SQLException{
-        createTableIfNotExists();
-        String sql = "Select short_link from LinksTable where link = ?";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, link);
-        ResultSet resultSet = statement.executeQuery();
-
-        while(resultSet.next()) {
-            System.out.println(resultSet.getString(1));
+    public String tryToGetFromDB(String link) {
+        Link ll= null;
+        String shortName = null;
+        try {
+            Query<Link> query =
+                    session.createQuery("select l from Link l where l.originalName = :originalName", Link.class)
+                            .setParameter("originalName", link);
+            ll = query.getSingleResult();
+            shortName = ll.getShortName();
+        } catch(Exception e){
+            e.printStackTrace();
         }
-
-        return null;
+        System.out.println(shortName);
+        return shortName;
     }
 
-    private static void createTableIfNotExists() throws SQLException {
-        StringBuilder sql = new StringBuilder();
-        sql.append("create table if not exists ")
-                .append("LinksTable")
-                .append("(")
-                .append("link")
-                .append(" text")
-                .append(", ")
-                .append("short_link")
-                .append(" text")
-                .append(")");
-        Statement statement = connection.createStatement();
-        statement.execute(sql.toString());
+    public void insertToDb() {
+        try {
+            Link link = new Link();
+            link.setOriginalName("original");
+            link.setShortName("short");
+
+            Serializable linkId = session.save(link);
+            link.setID((int) linkId);
+            System.out.println(linkId);
+        } catch(Exception e) {
+
+        }
     }
 
+
+    public void registerInDb(String link, String shortLink) {
+        try {
+            Link l = new Link();
+            l.setOriginalName(link);
+            l.setShortName(shortLink);
+
+            Serializable linkId = session.save(l);
+            l.setID((int) linkId);
+            System.out.println(linkId);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
