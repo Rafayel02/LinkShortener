@@ -2,11 +2,9 @@ package com.example.LinkShortener;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import com.example.LinkShortener.Link;
 
 import java.io.Serializable;
 import java.sql.*;
-import java.util.Arrays;
 
 public class DataBase {
 
@@ -36,26 +34,10 @@ public class DataBase {
             ll = query.getSingleResult();
             shortName = ll.getShortName();
         } catch(Exception e){
-            e.printStackTrace();
         }
         System.out.println(shortName);
         return shortName;
     }
-
-    public void insertToDb() {
-        try {
-            Link link = new Link();
-            link.setOriginalName("original");
-            link.setShortName("short");
-
-            Serializable linkId = session.save(link);
-            link.setID((int) linkId);
-            System.out.println(linkId);
-        } catch(Exception e) {
-
-        }
-    }
-
 
     public void registerInDb(String link, String shortLink) {
         try {
@@ -69,5 +51,19 @@ public class DataBase {
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public String getLinkByShortLink(String shortLink) {
+        Link ll= null;
+        String link = null;
+        try {
+            Query<Link> query =
+                    session.createQuery("select l from Link l where l.shortName = :shortName", Link.class)
+                            .setParameter("shortName", shortLink);
+            ll = query.getSingleResult();
+            link = ll.getOriginalName();
+        } catch(Exception e){
+        }
+        return link;
     }
 }

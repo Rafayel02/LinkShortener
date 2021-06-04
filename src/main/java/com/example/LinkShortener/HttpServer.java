@@ -43,14 +43,21 @@ public class HttpServer {
                 db.registerInDb(link, shortLink);
             }
             ctx.result(getFileContent("src/main/resources/public/shorten_link_page.html")
-                    .replaceAll("SHORT_LINK", shortLink))
+                    .replaceAll("SHORT_LINK", "localhost:8000/s/"+shortLink))
                     .contentType("html");
+        });
+
+        app.get("/s/:short", ctx -> {
+            String shortLink = ctx.pathParam("short");
+            String link = db.getLinkByShortLink(shortLink);
+            ctx.result(getFileContent("src/main/resources/public/link_page.html")
+                    .replaceAll("LINK", link)).contentType("html");
         });
 
     }
 
     private static String getFileContent(String s) {
-        Path path = Paths.get("src/main/resources/public/shorten_link_page.html");
+        Path path = Paths.get(s);
         StringBuilder sb = new StringBuilder();
         try (Stream<String> stream = Files.lines(path, StandardCharsets.UTF_8)) {
             stream.forEach(sb::append);
@@ -67,12 +74,7 @@ public class HttpServer {
             int index = (int) (Math.random()*62);
             shortLink.append(symbols.charAt(index));
         }
-        checkIfNotExists(shortLink);
         return shortLink.toString();
-    }
-
-    private static void checkIfNotExists(StringBuilder shortLink) {
-
     }
 
 }
