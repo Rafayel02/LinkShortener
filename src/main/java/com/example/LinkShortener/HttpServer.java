@@ -43,7 +43,7 @@ public class HttpServer {
                 db.registerInDb(link, shortLink);
             }
             ctx.result(getFileContent("src/main/resources/public/shorten_link_page.html")
-                    .replaceAll("SHORT_LINK", "localhost:8000/s/"+shortLink))
+                    .replaceAll("SHORT_LINK", "/s/"+shortLink))
                     .contentType("html");
         });
 
